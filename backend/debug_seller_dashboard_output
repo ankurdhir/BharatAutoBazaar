@@ -1,0 +1,41 @@
+🔍 SellerDashboard Debug Script
+==================================================
+
+✅ Test user found: Test User
+   📧 Email: testuser@spinny.com
+   🆔 ID: e2df72a2-5b8d-42aa-86ad-45d02187c040
+   🔓 Is Active: True
+   💼 Is Seller: True
+
+🚗 Cars owned by Test User: 3
+   - 2025 Mahindra Xuv300 mx (Status: approved)
+   - 2024 Maruti Swift zxi (Status: approved)
+   - 2020 Toyota Camry (Status: pending)
+
+🧪 Testing seller endpoints...
+
+📡 Testing /cars/seller/listings/
+   Status: 200
+   Success: True
+   Listings count: 3
+   Stats: {'total': 3, 'pending': 1, 'approved': 2, 'rejected': 0, 'sold': 0}
+   First listing:
+     - Title: 2025 Mahindra Xuv300 mx
+     - Status: approved
+     - Images: 1
+
+📡 Testing /cars/seller/stats/
+   Status: 200
+   Stats data: {'success': True, 'data': {'listings': {'total': 3, 'active': 2, 'sold': 0, 'pending': 1}, 'performance': {'totalViews': 3, 'totalInquiries': 0, 'averageResponseTime': '2.5 hours', 'rating': 4.5}, 'earnings': {'totalSales': 0, 'thisMonth': 0}}}
+
+🎯 Fresh token for SellerDashboard:
+   Copy this token to localStorage:
+   localStorage.setItem('authToken', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU0Mjg4NDAzLCJpYXQiOjE3NTQyMDIwMDMsImp0aSI6IjQ5OTY5ODMyNGRmYzRhNzQ5Y2U0ZTg1ZWQwZTc2ZGIyIiwidXNlcl9pZCI6ImUyZGY3MmEyLTViOGQtNDJhYS04NmFkLTQ1ZDAyMTg3YzA0MCJ9.75RGsRdlKKSpi1CFA9TBqLemHlv0ddmAQyc1z_-tF5A');
+   localStorage.setItem('currentUser', JSON.stringify({
+     id: 'e2df72a2-5b8d-42aa-86ad-45d02187c040',
+     name: 'Test User',
+     email: 'testuser@spinny.com'
+   }));
+   location.reload();
+
+✅ Debug complete. Check console for any frontend errors.
