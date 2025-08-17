@@ -29,11 +29,22 @@ jobs:
         run: npm ci
 
       - name: Build
-        env:
-          GITHUB_PAGES: 'true'
-          VITE_PUBLIC_BASE: ${{ vars.VITE_PUBLIC_BASE }}
-          VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: |
+          export GITHUB_PAGES=true
+          # Derive base path automatically if not provided via repo Variables
+          if [ -z "${{ vars.VITE_PUBLIC_BASE }}" ]; then
+            export VITE_PUBLIC_BASE="/${{ github.event.repository.name }}/"
+            echo "VITE_PUBLIC_BASE not set; defaulting to $VITE_PUBLIC_BASE"
+          else
+            export VITE_PUBLIC_BASE="${{ vars.VITE_PUBLIC_BASE }}"
+          fi
+
+          if [ -z "${{ vars.VITE_API_URL }}" ]; then
+            echo "Warning: VITE_API_URL is not set. Frontend will fallback to protocol//localhost:8000/api/v1"
+          else
+            export VITE_API_URL="${{ vars.VITE_API_URL }}"
+          fi
+
           npm run build
           # SPA fallback for Pages
           cp dist/index.html dist/404.html
