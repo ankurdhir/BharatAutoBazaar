@@ -147,6 +147,13 @@ export default function Home() {
     }
   ]
 
+  // Popular Indian brands to highlight on homepage
+  const popularBrandNames = ['Mahindra', 'Tata', 'Maruti Suzuki', 'Toyota', 'Skoda', 'Renault']
+  const popularBrandList = popularBrandNames.map((name) => {
+    const match = (brands || []).find(b => (b.name || '').toLowerCase() === name.toLowerCase())
+    return { name, logo: match?.logo || null }
+  })
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
       {/* Hero Section */}
@@ -374,7 +381,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular Brands (show 5 brands) */}
+      {/* Popular Brands (fixed popular Indian brands; click applies brand filter) */}
       <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -398,8 +405,8 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
-              {brands.slice(0, 5).map((brand, index) => (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+              {popularBrandList.map((brand, index) => (
                 <motion.button
                   key={brand.name}
                   initial={{ opacity: 0, y: 20 }}
