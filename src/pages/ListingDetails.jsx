@@ -441,66 +441,23 @@ export default function ListingDetails() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => { window.location.href = 'tel:+919999800452' }}
+                  className="w-full bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Call Now
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setShowEMICalculator(true)}
                   className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold transition-colors"
                 >
                   Calculate EMI
                 </motion.button>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={toggleFavorite}
-                    className={`py-3 rounded-lg font-semibold transition-colors ${
-                      isFavorite
-                        ? 'bg-red-500 hover:bg-red-600 text-white'
-                        : 'bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300'
-                    }`}
-                  >
-                    {isFavorite ? '❤️ Saved' : '🤍 Save'}
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      navigator.share({
-                        title: carService.getCarDisplayName(car),
-                        text: `Check out this ${carService.getCarDisplayName(car)} for ${carService.formatPrice(car.price)}`,
-                        url: window.location.href
-                      }).catch(() => {
-                        navigator.clipboard.writeText(window.location.href)
-                        toast({
-                          title: "Link Copied",
-                          description: "Listing link copied to clipboard",
-                        })
-                      })
-                    }}
-                    className="py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 rounded-lg font-semibold transition-colors"
-                  >
-                    📤 Share
-                  </motion.button>
-                </div>
               </div>
 
-              {/* Seller Info */}
-              {car.seller && (
-                <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-600">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Seller Information</h3>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                      <span className="text-xl">👤</span>
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-white">{car.seller.name}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Member since {new Date(car.seller.created_at).getFullYear()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Seller Info removed */}
 
               {/* Last Updated */}
               <div className="mt-4 text-xs text-gray-500">
