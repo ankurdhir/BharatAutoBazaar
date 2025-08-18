@@ -27,7 +27,7 @@ export default function Home() {
   useEffect(() => {
     loadCities()
     loadBrands()
-    loadFeaturedCars()
+    // Featured cars section removed
   }, [])
 
   // Load cities from API
@@ -67,22 +67,7 @@ export default function Home() {
   }
 
   // Load featured cars from API
-  const loadFeaturedCars = async () => {
-    try {
-      const result = await carService.getCars({
-        featured: true,
-        limit: 8,
-        sortBy: 'created_desc'
-      })
-      if (result.success) {
-        setFeaturedCars(result.data.cars || [])
-      }
-    } catch (error) {
-      console.error('Failed to load featured cars:', error)
-    } finally {
-      setLoading(prev => ({ ...prev, featuredCars: false }))
-    }
-  }
+  // Featured cars loader removed
 
   // Handle search submission
   const handleSearch = (e) => {
@@ -389,7 +374,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Popular Brands */}
+      {/* Popular Brands (show 5 brands) */}
       <section className="py-20 bg-gray-50 dark:bg-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -413,8 +398,8 @@ export default function Home() {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-6">
-              {brands.slice(0, 16).map((brand, index) => (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+              {brands.slice(0, 5).map((brand, index) => (
                 <motion.button
                   key={brand.name}
                   initial={{ opacity: 0, y: 20 }}
@@ -453,122 +438,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Cars */}
-      <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Featured Cars
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400">
-              Hand-picked premium cars just for you
-            </p>
-          </motion.div>
-
-          {loading.featuredCars ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-                  <div className="h-48 bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-                  <div className="p-4 space-y-3">
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4 animate-pulse"></div>
-                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-1/2 animate-pulse"></div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : featuredCars.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredCars.map((car, index) => (
-                <motion.div
-                  key={car.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ y: -5 }}
-                  className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-300"
-                  onClick={() => navigate(`/listing/${car.id}`)}
-                >
-                  <div className="relative h-48 bg-gray-200 dark:bg-gray-700">
-                    {car.images && car.images.length > 0 ? (
-                      <img
-                        src={getCarMainImageUrl(car)}
-                        alt={carService.getCarDisplayName(car)}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = '/api/placeholder/400/240'
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-4xl">🚗</span>
-                      </div>
-                    )}
-                    
-                    <div className="absolute top-3 left-3 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                      ⭐ Featured
-                    </div>
-                  </div>
-
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-1">
-                      {carService.getCarDisplayName(car)}
-                    </h3>
-                    
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      📍 {carService.getCarLocation(car)}
-                    </p>
-
-                    <div className="flex items-center justify-between">
-                      <p className="text-xl font-bold text-gray-900 dark:text-white">
-                        {carService.formatPrice(car.price)}
-                      </p>
-                      
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          navigate(`/listing/${car.id}`)
-                        }}
-                      >
-                        View Details
-                      </motion.button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🚗</div>
-              <p className="text-gray-600 dark:text-gray-400">
-                No featured cars available at the moment
-              </p>
-            </div>
-          )}
-
-          <div className="text-center mt-8">
-            <Link to="/buy">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
-              >
-                View All Cars
-              </motion.button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      {/* Featured Cars removed */}
 
       {/* Why Choose Us */}
       <section className="py-20 bg-gray-50 dark:bg-gray-800">

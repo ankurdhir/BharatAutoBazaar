@@ -12,11 +12,7 @@ export default function Footer() {
     { name: 'Sell Car', path: '/sell' }
   ]
 
-  const supportLinks = [
-    { name: 'Contact Us', path: '/contact' },
-    { name: 'FAQ', path: '/faq' },
-    { name: 'Support', path: '/support' }
-  ]
+  // Support section removed per request
 
   return (
     <footer className="bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700">
@@ -33,15 +29,27 @@ export default function Footer() {
             <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md">
               {brand.tagline}
             </p>
-            <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400">
-              <span>Contact:</span>
-              <a 
-                href={`mailto:${brand.contactEmail}`}
-                className="hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
-                style={{ color: brand.primaryColor }}
-              >
-                {brand.contactEmail}
-              </a>
+            <div className="flex flex-col space-y-1 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-2">
+                <span>Contact:</span>
+                <a 
+                  href={`mailto:admin@bharatauttobazaar.com`}
+                  className="hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                  style={{ color: brand.primaryColor }}
+                >
+                  admin@bharatauttobazaar.com
+                </a>
+              </div>
+              <div className="flex items-center space-x-2">
+                <span>Phone:</span>
+                <a 
+                  href="tel:+919999800452"
+                  className="hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
+                  style={{ color: brand.primaryColor }}
+                >
+                  +91 99998 00452
+                </a>
+              </div>
             </div>
           </div>
 
@@ -64,24 +72,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white uppercase tracking-wider mb-4">
-              Support
-            </h3>
-            <ul className="space-y-2">
-              {supportLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    to={link.path}
-                    className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors duration-200"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* Support section removed */}
         </div>
 
         {/* Bottom Section */}
