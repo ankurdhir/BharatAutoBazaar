@@ -97,10 +97,23 @@ class ApiService {
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle 401 errors - clear invalid tokens
-        if (response.status === 401 && this.token) {
-          console.warn('401 Unauthorized - clearing invalid token');
-          this.setToken(null);
+        // Handle 401 errors - clear invalid tokens and redirect from protected seller routes
+        if (response.status === 401) {
+          if (this.token) {
+            console.warn('401 Unauthorized - clearing invalid token');
+            this.setToken(null);
+          }
+          try {
+            if (typeof window !== 'undefined') {
+              const { pathname, search, hash } = window.location;
+              const pathLower = pathname.toLowerCase();
+              const isSellerRoute = pathLower.startsWith('/sell') || pathLower.startsWith('/seller');
+              if (isSellerRoute) {
+                const returnUrl = encodeURIComponent(`${pathname}${search}${hash}`);
+                window.location.replace(`/login?returnUrl=${returnUrl}`);
+              }
+            }
+          } catch {}
         }
         throw new ApiError(data.error?.message || 'Request failed', response.status, data);
       }
