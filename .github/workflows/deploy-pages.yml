@@ -49,6 +49,12 @@ jobs:
           # SPA fallback for Pages
           cp dist/index.html dist/404.html
 
+          # Add CNAME for custom domain if provided via repo variables
+          if [ -n "${{ vars.PAGES_CUSTOM_DOMAIN }}" ]; then
+            echo "${{ vars.PAGES_CUSTOM_DOMAIN }}" > dist/CNAME
+            echo "Wrote CNAME for custom domain: ${{ vars.PAGES_CUSTOM_DOMAIN }}"
+          fi
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
