@@ -193,9 +193,10 @@ export default function Login() {
     setError('')
     
     try {
-      const formattedPhone = phoneNumber.startsWith('+91') 
-        ? phoneNumber 
-        : `+91${phoneNumber.replace(/^\+?91?/, '')}`
+      // Normalize to E.164: keep digits, ensure +91 prefix
+      const digitsOnly = String(phoneNumber || '').replace(/\D+/g, '')
+      const localPart = digitsOnly.startsWith('91') ? digitsOnly.slice(2) : digitsOnly
+      const formattedPhone = `+91${localPart}`
       
       const result = await authService.sendOTP(formattedPhone)
       

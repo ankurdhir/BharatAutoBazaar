@@ -159,14 +159,9 @@ export default function Sell() {
     }
   }, [formData.model_name, models])
 
-  // Load state when city changes
+  // State is no longer auto-filled from city; both are free text
   useEffect(() => {
-    if (formData.city_name) {
-      const selectedCity = cities.find(c => c.name === formData.city_name)
-      if (selectedCity) {
-        setFormData(prev => ({ ...prev, state_name: selectedCity.state }))
-      }
-    }
+    return
   }, [formData.city_name, cities])
 
   // Update form data
@@ -379,8 +374,7 @@ export default function Sell() {
         address: formData.address || '',
         description: formData.description || '',
         contact: formData.contact,
-        image_ids: formData.uploadedImages.map(img => img.id),
-        video_ids: formData.uploadedVideos.map(vid => vid.id)
+        image_ids: formData.uploadedImages.map(img => img.id)
       }
 
       console.log('Submission data being sent:', submissionData)
@@ -898,16 +892,13 @@ export default function Sell() {
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         City *
                       </label>
-                      <select
+                      <input
+                        type="text"
                         value={formData.city_name}
                         onChange={(e) => updateFormData('city_name', e.target.value)}
+                        placeholder="Enter your city"
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                      >
-                        <option value="">Select City</option>
-                        {cities.map(city => (
-                          <option key={city.id} value={city.name}>{city.name}</option>
-                        ))}
-                      </select>
+                      />
                       {errors.city_name && (
                         <p className="mt-1 text-sm text-red-600">{errors.city_name}</p>
                       )}
@@ -920,9 +911,9 @@ export default function Sell() {
                       <input
                         type="text"
                         value={formData.state_name}
-                        readOnly
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-600 text-gray-900 dark:text-white"
-                        placeholder="Auto-filled based on city"
+                        onChange={(e) => updateFormData('state_name', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        placeholder="Enter your state"
                       />
                     </div>
 
@@ -1024,55 +1015,7 @@ export default function Sell() {
                   )}
                 </div>
 
-                {/* Video Upload */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Car Video (Optional)
-                  </h3>
-                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6">
-                    <input
-                      type="file"
-                      accept="video/*"
-                      onChange={(e) => handleVideoUpload(e.target.files[0])}
-                      className="hidden"
-                      id="video-upload"
-                    />
-                    <label
-                      htmlFor="video-upload"
-                      className="cursor-pointer flex flex-col items-center"
-                    >
-                      <div className="text-4xl mb-4">🎥</div>
-                      <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                        Upload Car Video
-                      </p>
-                      <p className="text-sm text-gray-500 text-center">
-                        Optional video walkthrough of your car. Maximum {Math.round((systemConfig.limits?.maxVideoSizeBytes || 52428800) / 1024 / 1024)}MB.
-                      </p>
-                    </label>
-                  </div>
-
-                  {/* Uploaded Videos */}
-                  {formData.uploadedVideos.length > 0 && (
-                    <div className="mt-4">
-                      {formData.uploadedVideos.map((video, index) => (
-                        <div key={video.id} className="relative inline-block">
-                          <video
-                            src={video.url}
-                            controls
-                            className="w-full max-w-md h-48 object-cover rounded-lg"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeVideo(video.id)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {/* Video Upload removed - images only */}
 
                 {/* Submit Button */}
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
