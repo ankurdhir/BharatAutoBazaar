@@ -149,9 +149,20 @@ export default function Home() {
 
   // Popular Indian brands to highlight on homepage
   const popularBrandNames = ['Mahindra', 'Tata', 'Maruti Suzuki', 'Toyota', 'Skoda', 'Renault']
+  // Simple Icons CDN slugs for quick, license-friendly SVG logos (fallback if API has no logo)
+  const logoSlugMap = {
+    'Mahindra': 'mahindra',
+    'Tata': 'tata',
+    'Maruti Suzuki': 'marutisuzuki',
+    'Toyota': 'toyota',
+    'Skoda': 'skoda',
+    'Renault': 'renault',
+  }
   const popularBrandList = popularBrandNames.map((name) => {
     const match = (brands || []).find(b => (b.name || '').toLowerCase() === name.toLowerCase())
-    return { name, logo: match?.logo || null }
+    const slug = logoSlugMap[name]
+    const cdnLogo = slug ? `https://cdn.simpleicons.org/${slug}` : null
+    return { name, logo: match?.logo || cdnLogo }
   })
 
   return (
