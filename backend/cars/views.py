@@ -11,6 +11,8 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from datetime import timedelta
+from django.core.mail import send_mail
+from django.conf import settings
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.openapi import OpenApiTypes
 import time
@@ -448,6 +450,50 @@ class CreateCarView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             car = serializer.save()
+
+            # Notify admin by email (no images)
+            try:
+                subject = f"New Listing Submitted: {car.year} {car.brand.name} {car.car_model.name}"
+                lines = [
+                    "A new car listing has been submitted and is pending review.",
+                    "",
+                    f"Title: {car.title}",
+                    f"Brand / Model / Variant: {car.brand.name} / {car.car_model.name} / {(car.variant.name if car.variant else '-')}",
+                    f"Year: {car.year}",
+                    f"Fuel / Transmission: {car.fuel_type} / {car.transmission}",
+                    f"KM Driven: {car.km_driven}",
+                    f"Price: ₹{car.price}",
+                    "",
+                    "Location:",
+                    f"City: {car.city.name if getattr(car, 'city', None) else ''}",
+                    f"Area: {car.area}",
+                    f"Address: {car.address}",
+                    "",
+                    "Seller:",
+                    f"Name: {car.seller_name}",
+                    f"Phone: {car.seller_phone}",
+                    f"Email: {car.seller_email or ''}",
+                    "",
+                    "Description:",
+                    (car.description or ''),
+                    "",
+                    f"Listing ID: {car.id}",
+                    "",
+                    "Review and approve in the Admin Dashboard:",
+                    "https://www.bharatauttobazaar.com/admin/login",
+                ]
+                message = "\n".join(lines)
+                from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'admin@bharatauttobazaar.com')
+                send_mail(
+                    subject,
+                    message,
+                    from_email,
+                    ['admin@bharatauttobazaar.com'],
+                    fail_silently=True,
+                )
+            except Exception:
+                # Do not block listing creation if email fails
+                pass
             return Response({
                 'success': True,
                 'message': 'Listing created successfully',

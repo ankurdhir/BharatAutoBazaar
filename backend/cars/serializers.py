@@ -2,6 +2,9 @@
 Car serializers for Spinny Car Marketplace
 """
 from rest_framework import serializers
+import logging
+from django.conf import settings
+from django.core.mail import send_mail
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from .models import (
@@ -570,6 +573,37 @@ class ContactSellerSerializer(serializers.Serializer):
             validated_data['buyer'] = request.user
         
         inquiry = Inquiry.objects.create(**validated_data)
+
+        # Send notification email to admins (non-blocking)
+        try:
+            subject = f"New Inquiry for {car.title}"
+            body_lines = [
+                f"Car: {car.title}",
+                f"Seller: {car.seller_name} ({car.seller_phone})",
+                "",
+                "Buyer Details:",
+                f"Name: {validated_data.get('buyer_name')}",
+                f"Phone: {validated_data.get('buyer_phone')}",
+                f"Email: {validated_data.get('buyer_email', '')}",
+                f"Preferred time: {validated_data.get('preferred_contact_time', 'anytime')}",
+                "",
+                "Message:",
+                validated_data.get('message', ''),
+                "",
+                f"Inquiry ID: {inquiry.id}",
+            ]
+            message = "\n".join(body_lines)
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'admin@bharatauttobazaar.com')
+            recipients = ['admin@bharatauttobazaar.com']
+            send_mail(
+                subject,
+                message,
+                from_email,
+                recipients,
+                fail_silently=True,
+            )
+        except Exception:
+            logging.getLogger(__name__).exception('Failed to send inquiry notification email')
         
         return {
             'inquiry_id': str(inquiry.id),
