@@ -318,6 +318,7 @@ export default function Sell() {
 
     if (step === 3) {
       if (!formData.city_name) newErrors.city_name = 'City is required'
+      if (!formData.state_name) newErrors.state_name = 'State is required'
       if (!formData.contact.sellerName) newErrors.sellerName = 'Seller name is required'
       if (!formData.contact.phoneNumber) newErrors.phoneNumber = 'Phone number is required'
     }
@@ -915,6 +916,9 @@ export default function Sell() {
                         className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                         placeholder="Enter your state"
                       />
+                      {errors.state_name && (
+                        <p className="mt-1 text-sm text-red-600">{errors.state_name}</p>
+                      )}
                     </div>
 
                     <div>
