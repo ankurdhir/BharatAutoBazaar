@@ -216,6 +216,8 @@ class Car(models.Model):
     title = models.CharField(max_length=255)  # Auto-generated or custom
     description = models.TextField()
     features = models.JSONField(default=list)  # List of car features
+    # Optional YouTube video URL (set by admin)
+    video_url = models.URLField(blank=True)
     
     # Vehicle documents
     registration_number = models.CharField(max_length=20, blank=True)

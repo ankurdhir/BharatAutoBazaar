@@ -59,7 +59,7 @@ class AdminCarDetailSerializer(serializers.ModelSerializer):
             'status', 'verified', 'featured',
             'seller_info', 'city', 'area', 'address', 'description', 'features',
             'exterior_condition', 'interior_condition', 'engine_condition',
-            'accident_history', 'quality_score', 'images', 'videos',
+            'accident_history', 'quality_score', 'images', 'videos', 'video_url',
             'views_count', 'inquiries_count', 'review_history',
             'created_at', 'reviewed_at', 'rejection_reason', 'admin_notes', 'choices'
         ]

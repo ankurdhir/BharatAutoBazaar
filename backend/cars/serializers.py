@@ -161,6 +161,7 @@ class CarDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'brand', 'car_model', 'variant', 'year', 'price', 'original_price',
             'km_driven', 'fuel_type', 'transmission', 'location', 'images', 'videos',
+            'video_url',
             'specifications', 'verified', 'owner_number', 'features', 'condition',
             'accident_history', 'service_history', 'insurance', 'registration',
             'seller', 'description', 'quality_score', 'price_analysis',

@@ -199,6 +199,7 @@ class AdminCarUpdateView(APIView):
                 'accident_history', 'urgency', 'quality_score',
                 'title', 'description', 'features',
                 'area', 'address',
+                'video_url',
                 'registration_number', 'registration_state', 'registration_date',
                 'insurance_valid', 'insurance_expiry', 'rc_transfer_available',
                 'status', 'verified', 'featured',

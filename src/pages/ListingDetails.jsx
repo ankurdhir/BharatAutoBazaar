@@ -425,6 +425,18 @@ export default function ListingDetails() {
                     {carService.formatPrice(car.original_price)}
                   </div>
                 )}
+                {car.video_url && (
+                  <div className="mt-3">
+                    <a
+                      href={car.video_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center text-red-600 hover:text-red-700 font-medium"
+                    >
+                      <span className="mr-2">▶</span> View Car Video
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
