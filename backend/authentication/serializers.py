@@ -2,6 +2,7 @@
 Authentication serializers for Spinny Car Marketplace
 """
 import os
+import logging
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
@@ -12,6 +13,7 @@ from twilio.rest import Client
 
 User = get_user_model()
 
+logger = logging.getLogger(__name__)
 
 class SendOTPSerializer(serializers.Serializer):
     """
@@ -45,13 +47,22 @@ class SendOTPSerializer(serializers.Serializer):
         # Send OTP via SMS using Twilio (minimal)
         account_sid = os.environ["TWILIO_ACCOUNT_SID"]
         auth_token = os.environ["TWILIO_AUTH_TOKEN"]
-        from_number = os.environ["TWILIO_FROM_NUMBER"]
-        client = Client(account_sid, auth_token)
-        client.messages.create(
-            body=f"Your Bharat Auto Bazaar OTP is {otp_token.otp}",
-            from_=from_number,
-            to=str(phone_number),
-        )
+        # Backward-compatible: support TWILIO_FROM_NUMBER and TWILIO_PHONE_NUMBER
+        from_number = os.environ.get("TWILIO_FROM_NUMBER") or os.environ.get("TWILIO_PHONE_NUMBER")
+        if not from_number:
+            logger.error("Twilio FROM number not configured. Set TWILIO_FROM_NUMBER or TWILIO_PHONE_NUMBER.")
+            raise serializers.ValidationError("OTP service not configured. Please try again later.")
+
+        try:
+            client = Client(account_sid, auth_token)
+            client.messages.create(
+                body=f"Your Bharat Auto Bazaar OTP is {otp_token.otp}",
+                from_=from_number,
+                to=str(phone_number),
+            )
+        except Exception:
+            logger.exception("Failed to send OTP via Twilio")
+            raise serializers.ValidationError("Failed to send OTP. Please try again later.")
         
         return {
             'otp_id': str(otp_token.id),
