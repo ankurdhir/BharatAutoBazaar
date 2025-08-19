@@ -201,12 +201,50 @@ export default function Sell() {
   }
 
   // File upload handlers
+  const compressImage = (file, maxBytes = 5 * 1024 * 1024, qualityStart = 0.92) => new Promise((resolve, reject) => {
+    try {
+      const img = new Image()
+      const url = URL.createObjectURL(file)
+      img.onload = () => {
+        const canvas = document.createElement('canvas')
+        const ctx = canvas.getContext('2d')
+        // Keep dimensions; rely on quality scaling first (faster). Could also downscale if needed.
+        canvas.width = img.naturalWidth
+        canvas.height = img.naturalHeight
+        ctx.drawImage(img, 0, 0)
+        let quality = qualityStart
+        let blob = null
+        const toBlobPromise = (q) => new Promise(r => canvas.toBlob(r, 'image/jpeg', q))
+        const iterate = async () => {
+          blob = await toBlobPromise(quality)
+          while (blob && blob.size > maxBytes && quality > 0.2) {
+            quality -= 0.1
+            blob = await toBlobPromise(quality)
+          }
+          resolve(new File([blob || file], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }))
+        }
+        iterate()
+        URL.revokeObjectURL(url)
+      }
+      img.onerror = () => {
+        URL.revokeObjectURL(url)
+        resolve(file) // fallback: return original
+      }
+      img.src = url
+    } catch (e) {
+      resolve(file) // fallback
+    }
+  })
+
   const handleImageUpload = async (files) => {
     if (!files || files.length === 0) return
 
     setLoading(true)
     try {
-      const result = await carService.uploadCarImages(Array.from(files))
+      // Client-side compress each image to <= 5MB (industry-common approach when not using signed direct uploads/CDN transforms)
+      const selected = Array.from(files)
+      const processed = await Promise.all(selected.map(f => compressImage(f)))
+      const result = await carService.uploadCarImages(processed)
       if (result.success) {
         setFormData(prev => ({
           ...prev,
@@ -323,10 +361,9 @@ export default function Sell() {
       if (!formData.contact.phoneNumber) newErrors.phoneNumber = 'Phone number is required'
     }
 
+    // Step 4: Photos now optional; no validation here
     if (step === 4) {
-      if (formData.uploadedImages.length === 0) {
-        newErrors.images = 'At least one image is required'
-      }
+      // Images optional; no-op
     }
 
     setErrors(newErrors)

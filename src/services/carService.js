@@ -79,7 +79,8 @@ class CarService {
   // Delete car listing
   async deleteCarListing(carId) {
     try {
-      await apiService.delete(`/cars/${carId}/`);
+      // Backend delete for sellers is at /cars/seller/<id>/delete/
+      await apiService.delete(`/cars/seller/${carId}/delete/`);
       return {
         success: true,
       };
@@ -384,6 +385,18 @@ class CarService {
     try {
       const token = localStorage.getItem('adminToken') || localStorage.getItem('authToken') || ''
       await apiService.delete(`/upload/files/${fileId}/`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      return { success: true }
+    } catch (error) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  async adminDeleteListing(listingId) {
+    try {
+      const token = localStorage.getItem('adminToken') || ''
+      const res = await apiService.delete(`/admin/cars/${listingId}/delete/`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       return { success: true }

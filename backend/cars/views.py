@@ -1019,15 +1019,7 @@ class UploadCarImagesView(APIView):
                     }
                 }, status=status.HTTP_400_BAD_REQUEST)
             
-            # Validate file size (max 5MB)
-            if image_file.size > 5 * 1024 * 1024:
-                return Response({
-                    'success': False,
-                    'error': {
-                        'code': 'FILE_TOO_LARGE',
-                        'message': f'File {image_file.name} exceeds 5MB limit'
-                    }
-                }, status=status.HTTP_400_BAD_REQUEST)
+            # Backend no longer enforces 5MB strict limit; rely on client-side compression
             
             # Create CarImage object
             car_image = CarImage.objects.create(

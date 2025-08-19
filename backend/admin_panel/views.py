@@ -280,6 +280,19 @@ class AdminCarUpdateView(APIView):
             return user.admin_user
         return None
 
+
+class AdminDeleteCarView(APIView):
+    """
+    Delete a car listing (admin only)
+    """
+    permission_classes = [IsAdminPermission]
+    authentication_classes = [AdminTokenAuthentication]
+
+    def delete(self, request, id):
+        car = get_object_or_404(Car, id=id)
+        car.delete()
+        return Response({'success': True, 'message': 'Listing deleted'})
+
 @extend_schema(
     tags=['Admin'],
     summary='Review car listing',

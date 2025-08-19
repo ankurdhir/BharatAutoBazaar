@@ -321,6 +321,16 @@ export default function SellerDashboard() {
                 Welcome back, {user?.name || 'Seller'}!
               </p>
             </div>
+            <div className="flex gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => window.location.href = '/sell'}
+                className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              >
+                + Add New Listing
+              </motion.button>
+            </div>
           </div>
         </div>
       </div>
