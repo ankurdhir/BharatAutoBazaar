@@ -97,8 +97,28 @@ class ApiService {
       const data = await response.json();
 
       if (!response.ok) {
-        // Handle 401 errors - clear invalid tokens and redirect from protected seller routes
-        if (response.status === 401) {
+        // Handle 401 with silent refresh (retry once)
+        if (response.status === 401 && !options._retry) {
+          const refreshToken = localStorage.getItem('refreshToken');
+          if (refreshToken) {
+            try {
+              const refreshRes = await fetch(`${this.baseURL}/auth/refresh/`, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refresh_token: refreshToken })
+              });
+              const refreshData = await refreshRes.json();
+              if (refreshRes.ok && refreshData?.data?.access_token) {
+                // store new token and retry original request once
+                this.setToken(refreshData.data.access_token);
+                return this.request(endpoint, { ...options, _retry: true });
+              }
+            } catch (_) {
+              // fall through to redirect logic below
+            }
+          }
+
+          // No refresh or refresh failed → clear and possibly redirect on seller routes
           if (this.token) {
             console.warn('401 Unauthorized - clearing invalid token');
             this.setToken(null);
