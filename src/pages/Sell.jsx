@@ -355,9 +355,7 @@ export default function Sell() {
     }
 
     if (step === 3) {
-      if (!formData.city_name) newErrors.city_name = 'City is required'
-      if (!formData.state_name) newErrors.state_name = 'State is required'
-      if (!formData.contact.sellerName) newErrors.sellerName = 'Seller name is required'
+      // Name, City, State are optional now
       if (!formData.contact.phoneNumber) newErrors.phoneNumber = 'Phone number is required'
     }
 

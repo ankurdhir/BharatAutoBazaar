@@ -376,26 +376,46 @@ export default function AdminDashboard() {
                         {formatDate(listing.created_at)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {listing.status === 'pending' && (
-                          <div className="flex space-x-2">
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={(e) => { e.stopPropagation(); handleAction(listing, 'approve') }}
-                              className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
-                            >
-                              Approve
-                            </motion.button>
-                            <motion.button
-                              whileHover={{ scale: 1.05 }}
-                              whileTap={{ scale: 0.95 }}
-                              onClick={(e) => { e.stopPropagation(); handleAction(listing, 'reject') }}
-                              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
-                            >
-                              Reject
-                            </motion.button>
-                          </div>
-                        )}
+                        <div className="flex space-x-2">
+                          {listing.status === 'pending' && (
+                            <>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => { e.stopPropagation(); handleAction(listing, 'approve') }}
+                                className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                              >
+                                Approve
+                              </motion.button>
+                              <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={(e) => { e.stopPropagation(); handleAction(listing, 'reject') }}
+                                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                              >
+                                Reject
+                              </motion.button>
+                            </>
+                          )}
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={async (e) => {
+                              e.stopPropagation()
+                              if (!window.confirm('Delete this listing?')) return
+                              const res = await carService.adminDeleteListing(listing.id)
+                              if (res.success) {
+                                setListings(prev => prev.filter(l => l.id !== listing.id))
+                                toast({ title: 'Listing deleted' })
+                              } else {
+                                toast({ title: 'Delete failed', description: res.error, variant: 'destructive' })
+                              }
+                            }}
+                            className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs font-medium transition-colors"
+                          >
+                            Delete
+                          </motion.button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -459,35 +479,35 @@ export default function AdminDashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Title</span>
-                    <input name="title" defaultValue={editModal.detail.title} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="title" defaultValue={editModal.detail.title} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Price</span>
-                    <input name="price" type="number" defaultValue={editModal.detail.price} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="price" type="number" defaultValue={editModal.detail.price} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Brand</span>
-                    <input name="brand_name" defaultValue={editModal.detail.brand} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="brand_name" defaultValue={editModal.detail.brand} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Model</span>
-                    <input name="model_name" defaultValue={editModal.detail.car_model} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="model_name" defaultValue={editModal.detail.car_model} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Variant</span>
-                    <input name="variant_name" defaultValue={editModal.detail.variant || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="variant_name" defaultValue={editModal.detail.variant || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Year</span>
-                    <input name="year" type="number" defaultValue={editModal.detail.year} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="year" type="number" defaultValue={editModal.detail.year} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">KM Driven</span>
-                    <input name="km_driven" type="number" defaultValue={editModal.detail.km_driven} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="km_driven" type="number" defaultValue={editModal.detail.km_driven} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Number of Owners</span>
-                    <select name="owner_number" defaultValue={editModal.detail.owner_number} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="owner_number" defaultValue={editModal.detail.owner_number} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.owner_number || [editModal.detail.owner_number]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -495,7 +515,7 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Fuel Type</span>
-                    <select name="fuel_type" defaultValue={editModal.detail.fuel_type} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="fuel_type" defaultValue={editModal.detail.fuel_type} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.fuel_type || [editModal.detail.fuel_type]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -503,7 +523,7 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Transmission</span>
-                    <select name="transmission" defaultValue={editModal.detail.transmission} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="transmission" defaultValue={editModal.detail.transmission} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.transmission || [editModal.detail.transmission]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -511,7 +531,7 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Urgency</span>
-                    <select name="urgency" defaultValue={editModal.detail.urgency} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="urgency" defaultValue={editModal.detail.urgency} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.urgency || [editModal.detail.urgency]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -519,19 +539,19 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">City</span>
-                    <input name="city_name" defaultValue={editModal.detail.city} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="city_name" defaultValue={editModal.detail.city} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">State</span>
-                    <input name="state_name" defaultValue={editModal.detail.location?.state || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="state_name" defaultValue={editModal.detail.location?.state || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block md:col-span-2">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Full Address</span>
-                    <input name="address" defaultValue={editModal.detail.address || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="address" defaultValue={editModal.detail.address || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Exterior Condition</span>
-                    <select name="exterior_condition" defaultValue={editModal.detail.exterior_condition} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="exterior_condition" defaultValue={editModal.detail.exterior_condition} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.condition || [editModal.detail.exterior_condition]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -539,7 +559,7 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Interior Condition</span>
-                    <select name="interior_condition" defaultValue={editModal.detail.interior_condition} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="interior_condition" defaultValue={editModal.detail.interior_condition} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.condition || [editModal.detail.interior_condition]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -547,7 +567,7 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Engine Condition</span>
-                    <select name="engine_condition" defaultValue={editModal.detail.engine_condition} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="engine_condition" defaultValue={editModal.detail.engine_condition} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.condition || [editModal.detail.engine_condition]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -555,7 +575,7 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Status</span>
-                    <select name="status" defaultValue={editModal.detail.status} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700">
+                    <select name="status" defaultValue={editModal.detail.status} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">
                       {(editModal.detail.choices?.status || [editModal.detail.status]).map(v => (
                         <option key={v} value={v}>{v}</option>
                       ))}
@@ -563,20 +583,20 @@ export default function AdminDashboard() {
                   </label>
                   <label className="block md:col-span-2">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Seller Name</span>
-                    <input name="seller_name" defaultValue={editModal.detail.seller_info?.name || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="seller_name" defaultValue={editModal.detail.seller_info?.name || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Seller Phone</span>
-                    <input name="seller_phone" defaultValue={editModal.detail.seller_info?.phone || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="seller_phone" defaultValue={editModal.detail.seller_info?.phone || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Seller Email</span>
-                    <input name="seller_email" defaultValue={editModal.detail.seller_info?.email || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                    <input name="seller_email" defaultValue={editModal.detail.seller_info?.email || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
                 </div>
                 <label className="block">
                   <span className="text-sm text-gray-700 dark:text-gray-300">Description</span>
-                  <textarea name="description" defaultValue={editModal.detail.description} rows={4} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700" />
+                  <textarea name="description" defaultValue={editModal.detail.description} rows={4} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                 </label>
                 <div className="border-t pt-4">
                   <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Images</h4>

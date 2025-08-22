@@ -30,6 +30,7 @@ export default function Buy() {
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page')) || 1)
   const [pagination, setPagination] = useState({})
   const [filterOptions, setFilterOptions] = useState({})
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
   // Load cars from API
   const loadCars = useCallback(async () => {
@@ -264,20 +265,27 @@ export default function Buy() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filters Sidebar */}
+          {/* Filters Sidebar - collapsible */}
           <div className="lg:w-1/4">
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 sticky top-8">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-2">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Filters
                 </h2>
-                <button
-                  onClick={clearFilters}
-                  className="text-sm text-blue-600 hover:text-blue-800"
-                >
-                  Clear All
-                </button>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setFiltersOpen(o => !o)} className="text-sm text-gray-600 dark:text-gray-300">
+                    {filtersOpen ? 'Hide' : 'Show'}
+                  </button>
+                  <button
+                    onClick={clearFilters}
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    Clear All
+                  </button>
+                </div>
               </div>
+              {!filtersOpen ? null : (
+              <div>
 
               {/* Search */}
               <form onSubmit={handleSearch} className="mb-6">
@@ -396,6 +404,8 @@ export default function Buy() {
                   </p>
                 )}
               </div>
+              </div>
+              )}
             </div>
           </div>
 

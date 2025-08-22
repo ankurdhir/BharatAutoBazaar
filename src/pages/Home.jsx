@@ -35,7 +35,12 @@ export default function Home() {
     try {
       const result = await carService.getCities()
       if (result.success && Array.isArray(result.cities)) {
-        setCities(result.cities)
+        const map = new Map()
+        result.cities.forEach(c => {
+          const key = (c.name || '').toLowerCase()
+          if (!map.has(key)) map.set(key, c)
+        })
+        setCities(Array.from(map.values()))
       } else {
         console.warn('Cities API returned unexpected format:', result)
         setCities([])
@@ -91,8 +96,8 @@ export default function Home() {
 
   // Static data for sections that don't need API
   const trustIndicators = [
-    { number: '50,000+', label: 'Happy Customers' },
-    { number: '15,000+', label: 'Cars Sold' },
+    { number: '1,000+', label: 'Happy Customers' },
+    { number: '500+', label: 'Cars Sold' },
     { number: '99%', label: 'Customer Satisfaction' },
     { number: '200+', label: 'Quality Checks' }
   ]
@@ -284,6 +289,44 @@ export default function Home() {
               </Link>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Find Us On */}
+      <section className="py-16 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              Find Us On
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400">
+              Connect with Bharat Auto Bazaar
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
+            <a href="#" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
+              <img src="https://cdn.simpleicons.org/instagram" alt="Instagram" className="w-12 h-12" />
+              <span className="mt-2">Instagram</span>
+            </a>
+            <a href="#" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
+              <img src="https://cdn.simpleicons.org/facebook" alt="Facebook" className="w-12 h-12" />
+              <span className="mt-2">Facebook</span>
+            </a>
+            <a href="#" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
+              <img src="https://cdn.simpleicons.org/whatsapp" alt="WhatsApp" className="w-12 h-12" />
+              <span className="mt-2">WhatsApp</span>
+            </a>
+            <a href="tel:+919999800452" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
+              <img src="https://cdn.simpleicons.org/phone" alt="Phone" className="w-12 h-12" />
+              <span className="mt-2">Call Us</span>
+            </a>
+          </div>
         </div>
       </section>
 
