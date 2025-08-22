@@ -17,6 +17,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [searchParams] = useSearchParams()
+  const fromSell = (searchParams.get('returnUrl') || '').startsWith('/sell')
 
   // Send OTP
   const handleSendOtp = async (e) => {
@@ -231,9 +232,10 @@ export default function Login() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md"
+        className={`w-full ${fromSell ? 'max-w-4xl' : 'max-w-md'}`}
       >
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8">
+        <div className={`${fromSell ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : ''}`}>
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
             <motion.div
@@ -429,6 +431,28 @@ export default function Login() {
               By continuing, you agree to our Terms of Service and Privacy Policy
             </p>
           </div>
+          </div>
+          {fromSell && (
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 flex flex-col justify-center items-center text-center">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-3">Sell your car in 5 mins</h2>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">Get in touch with us:</p>
+              <a
+                href="https://wa.me/919999800452"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 px-5 py-3 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors"
+              >
+                <img src="https://cdn.simpleicons.org/whatsapp/FFFFFF" alt="WhatsApp" className="w-6 h-6" />
+                Chat on WhatsApp
+              </a>
+              <a
+                href="tel:+919999800452"
+                className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
+              >
+                Or call us at +91-99998 00452
+              </a>
+            </div>
+          )}
         </div>
       </motion.div>
     </div>

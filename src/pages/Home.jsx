@@ -310,15 +310,15 @@ export default function Home() {
           </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
-            <a href="#" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
+            <a href="https://instagram.com/bharatauttobazaar" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
               <img src="https://cdn.simpleicons.org/instagram" alt="Instagram" className="w-12 h-12" />
               <span className="mt-2">Instagram</span>
             </a>
-            <a href="#" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
+            <a href="https://facebook.com/share/1WWLu8JxCy" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
               <img src="https://cdn.simpleicons.org/facebook" alt="Facebook" className="w-12 h-12" />
               <span className="mt-2">Facebook</span>
             </a>
-            <a href="#" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
+            <a href="https://wa.me/919999800452" target="_blank" rel="noopener noreferrer" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
               <img src="https://cdn.simpleicons.org/whatsapp" alt="WhatsApp" className="w-12 h-12" />
               <span className="mt-2">WhatsApp</span>
             </a>
