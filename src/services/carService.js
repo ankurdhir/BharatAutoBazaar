@@ -533,7 +533,11 @@ class CarService {
   }
 
   getCarDisplayName(car) {
-    return `${car.year} ${car.brand} ${car.car_model}`
+    const year = car?.year
+    const brand = car?.brand
+    // List API provides 'model'; detail API provides 'car_model'
+    const model = car?.model || car?.car_model || car?.model_name
+    return [year, brand, model].filter(Boolean).join(' ')
   }
 
   getCarLocation(car) {
