@@ -11,7 +11,7 @@ export default function Login() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [step, setStep] = useState('phone') // 'phone' or 'otp'
-  const [identifier, setIdentifier] = useState('') // email or phone
+  const [identifier, setIdentifier] = useState('') // email only
   const [otp, setOtp] = useState('')
   const [otpData, setOtpData] = useState(null) // Store OTP response data
   const [loading, setLoading] = useState(false)
@@ -21,10 +21,8 @@ export default function Login() {
   // Send OTP
   const handleSendOtp = async (e) => {
     e.preventDefault()
-    const isEmail = /@/.test(identifier)
-    if (!identifier) return setError('Enter email or phone')
-    if (!isEmail && identifier.replace(/\D/g,'').length < 10) return setError('Enter a valid phone')
-    if (isEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(identifier)) return setError('Enter a valid email')
+    if (!identifier) return setError('Enter your email')
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(identifier)) return setError('Enter a valid email')
 
     setLoading(true)
     setError('')
@@ -73,8 +71,7 @@ export default function Login() {
 
   // Development quick login
   const handleDevLogin = async () => {
-    const isEmail = /@/.test(identifier)
-    if (!identifier) return setError('Enter email or phone')
+    if (!identifier) return setError('Enter your email')
 
     setLoading(true)
     setError('')
@@ -87,7 +84,7 @@ export default function Login() {
       if (result.success) {
         toast({
           title: "Development Login Successful",
-          description: `Logged in as ${result.user.name || result.user.email || result.user.phone_number}`,
+          description: `Logged in as ${result.user.name || result.user.email}`,
         })
 
         // Check if user came from a protected route
@@ -148,7 +145,7 @@ export default function Login() {
           title: "Login Successful",
           description: result.isNewUser 
                             ? "Welcome to Bharat Auto Bazaar! Your account has been created." 
-            : `Welcome back, ${result.user.name || result.user.email || result.user.phone_number}!`,
+            : `Welcome back, ${result.user.name || result.user.email}!`,
         })
 
         // Check if user came from a protected route
@@ -201,7 +198,7 @@ export default function Login() {
         
         toast({
           title: "OTP Resent",
-          description: "A new OTP has been sent to your phone.",
+          description: "A new OTP has been sent to your email.",
         })
         
         // Show demo OTP in development
@@ -249,18 +246,18 @@ export default function Login() {
             </motion.div>
             
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-              {step === 'phone' ? 'Welcome to Bharat Auto Bazaar' : 'Verify Your Phone'}
+              {step === 'phone' ? 'Welcome to Bharat Auto Bazaar' : 'Verify Your Email'}
             </h1>
             
             <p className="text-gray-600 dark:text-gray-400">
               {step === 'phone' 
-                ? 'Enter your phone number to get started' 
-                : `We've sent an OTP to your ${/@/.test(identifier) ? 'email' : 'phone'}`
+                ? 'Enter your email to get started' 
+                : `We've sent an OTP to your email`
               }
             </p>
           </div>
 
-          {/* Phone Number Step */}
+          {/* Email Step */}
           {step === 'phone' && (
             <motion.form 
               initial={{ opacity: 0, x: -20 }}
@@ -270,7 +267,7 @@ export default function Login() {
             >
               <div>
                 <label htmlFor="id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Email or Phone
+                  Email
                 </label>
                 <div className="relative">
                   <input
@@ -281,7 +278,7 @@ export default function Login() {
                       setIdentifier(e.target.value)
                       setError('')
                     }}
-                    placeholder="you@example.com or 9876543210"
+                    placeholder="you@example.com"
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
                   />
