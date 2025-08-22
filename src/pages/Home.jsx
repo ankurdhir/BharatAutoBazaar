@@ -323,7 +323,9 @@ export default function Home() {
               <span className="mt-2">WhatsApp</span>
             </a>
             <a href="tel:+919999800452" className="flex flex-col items-center text-gray-700 dark:text-gray-200">
-              <img src="https://cdn.simpleicons.org/phone" alt="Phone" className="w-12 h-12" />
+              <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15 .86 0 1.704-.066 2.527-.194a2.25 2.25 0 001.873-2.224v-2.42a1.125 1.125 0 00-1.148-1.125c-.516.017-1.03.062-1.54.134a1.125 1.125 0 00-.958.75l-.532 1.596a13.5 13.5 0 01-6.516-6.516l1.596-.532a1.125 1.125 0 00.75-.958c.072-.51.117-1.024.134-1.54A1.125 1.125 0 0013.088 3h-2.42A2.25 2.25 0 008.444 4.873 16.72 16.72 0 002.25 6.75z" />
+              </svg>
               <span className="mt-2">Call Us</span>
             </a>
           </div>
