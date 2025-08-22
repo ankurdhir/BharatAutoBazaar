@@ -11,7 +11,7 @@ export default function Login() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [step, setStep] = useState('phone') // 'phone' or 'otp'
-  const [phoneNumber, setPhoneNumber] = useState('')
+  const [identifier, setIdentifier] = useState('') // email or phone
   const [otp, setOtp] = useState('')
   const [otpData, setOtpData] = useState(null) // Store OTP response data
   const [loading, setLoading] = useState(false)
@@ -21,19 +21,19 @@ export default function Login() {
   // Send OTP
   const handleSendOtp = async (e) => {
     e.preventDefault()
-    if (!phoneNumber || phoneNumber.length < 10) {
-      setError('Please enter a valid phone number')
-      return
-    }
+    const isEmail = /@/.test(identifier)
+    if (!identifier) return setError('Enter email or phone')
+    if (!isEmail && identifier.replace(/\D/g,'').length < 10) return setError('Enter a valid phone')
+    if (isEmail && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(identifier)) return setError('Enter a valid email')
 
     setLoading(true)
     setError('')
 
     // Format phone number (remove spaces, ensure 10 digits)
-    const formattedPhone = phoneNumber.replace(/\s+/g, '').replace(/^0+/, '')
+    const formatted = identifier.trim()
 
     try {
-      const result = await authService.sendOTP(formattedPhone)
+      const result = await authService.sendOTP(formatted)
 
       if (result.success) {
         setOtpData(result.data)
@@ -41,7 +41,7 @@ export default function Login() {
         
         toast({
           title: "OTP Sent Successfully",
-          description: `OTP has been sent to ${result.data.masked_phone || formattedPhone}`,
+          description: `OTP has been sent.`,
         })
 
         // Show development hint if available
@@ -73,23 +73,21 @@ export default function Login() {
 
   // Development quick login
   const handleDevLogin = async () => {
-    if (!phoneNumber || phoneNumber.length < 10) {
-      setError('Please enter a valid phone number')
-      return
-    }
+    const isEmail = /@/.test(identifier)
+    if (!identifier) return setError('Enter email or phone')
 
     setLoading(true)
     setError('')
 
-    const formattedPhone = phoneNumber.replace(/\s+/g, '').replace(/^0+/, '')
+    const formatted = identifier.trim()
 
     try {
-      const result = await authService.devLogin(formattedPhone)
+      const result = await authService.devLogin(formatted)
 
       if (result.success) {
         toast({
           title: "Development Login Successful",
-          description: `Logged in as ${result.user.name || result.user.phone_number}`,
+          description: `Logged in as ${result.user.name || result.user.email || result.user.phone_number}`,
         })
 
         // Check if user came from a protected route
@@ -133,7 +131,7 @@ export default function Login() {
     
     try {
       // Keep it simple: let service normalize to E.164
-      const rawPhone = phoneNumber.replace(/\s+/g, '')
+      const target = identifier.trim()
       
       console.log('Verifying OTP with:', {
         otpId: otpData.otp_id,
@@ -141,7 +139,7 @@ export default function Login() {
         phone: rawPhone
       })
       
-      const result = await authService.verifyOTP(otpData.otp_id, otp, rawPhone)
+      const result = await authService.verifyOTP(otpData.otp_id, otp, target)
       
       console.log('VerifyOTP result:', result)
       
@@ -150,7 +148,7 @@ export default function Login() {
           title: "Login Successful",
           description: result.isNewUser 
                             ? "Welcome to Bharat Auto Bazaar! Your account has been created." 
-            : `Welcome back, ${result.user.name || result.user.phone_number}!`,
+            : `Welcome back, ${result.user.name || result.user.email || result.user.phone_number}!`,
         })
 
         // Check if user came from a protected route
@@ -194,11 +192,8 @@ export default function Login() {
     
     try {
       // Normalize to E.164: keep digits, ensure +91 prefix
-      const digitsOnly = String(phoneNumber || '').replace(/\D+/g, '')
-      const localPart = digitsOnly.startsWith('91') ? digitsOnly.slice(2) : digitsOnly
-      const formattedPhone = `+91${localPart}`
-      
-      const result = await authService.sendOTP(formattedPhone)
+      const target = identifier.trim()
+      const result = await authService.sendOTP(target)
       
       if (result.success) {
         setOtpData(result.data)
@@ -260,7 +255,7 @@ export default function Login() {
             <p className="text-gray-600 dark:text-gray-400">
               {step === 'phone' 
                 ? 'Enter your phone number to get started' 
-                : `We've sent an OTP to ${phoneNumber}`
+                : `We've sent an OTP to your ${/@/.test(identifier) ? 'email' : 'phone'}`
               }
             </p>
           </div>
@@ -274,25 +269,21 @@ export default function Login() {
               className="space-y-6"
             >
               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Phone Number
+                <label htmlFor="id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Email or Phone
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">
-                    +91
-                  </span>
                   <input
-                    id="phone"
-                    type="tel"
-                    value={phoneNumber}
+                    id="id"
+                    type="text"
+                    value={identifier}
                     onChange={(e) => {
-                      setPhoneNumber(e.target.value.replace(/\D/g, '').slice(0, 10))
+                      setIdentifier(e.target.value)
                       setError('')
                     }}
-                    placeholder="9876543210"
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                    placeholder="you@example.com or 9876543210"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                     required
-                    maxLength={10}
                   />
                 </div>
                 {error && (
@@ -308,7 +299,7 @@ export default function Login() {
 
               <motion.button
                 type="submit"
-                disabled={loading || phoneNumber.length < 10}
+                disabled={loading || !identifier}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-indigo-700 transition-all duration-200"
@@ -328,7 +319,7 @@ export default function Login() {
                 <motion.button
                   type="button"
                   onClick={handleDevLogin}
-                  disabled={loading || phoneNumber.length < 10}
+                  disabled={loading || !identifier}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="w-full bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-green-600 hover:to-emerald-700 transition-all duration-200"

@@ -20,10 +20,10 @@ export default function Sell() {
       if (!hasToken) {
         toast({
           title: "Authentication Required",
-          description: "Please login to sell your car",
+          description: "Please login with your email to sell your car",
           variant: "destructive",
         })
-        // Add returnUrl parameter so user comes back to sell page after login
+        // Add returnUrl so user comes back; login page now accepts email or phone
         navigate('/login?returnUrl=' + encodeURIComponent('/sell'))
       }
     }

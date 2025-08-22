@@ -60,10 +60,11 @@ class User(AbstractUser):
 
 class OTPToken(models.Model):
     """
-    OTP Token model for phone number verification
+    OTP Token model for phone or email verification
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    phone_number = PhoneNumberField()
+    phone_number = PhoneNumberField(blank=True, null=True)
+    email = models.EmailField(blank=True, null=True)
     otp = models.CharField(max_length=6)
     purpose = models.CharField(
         max_length=20,
@@ -97,7 +98,8 @@ class OTPToken(models.Model):
         ordering = ['-created_at']
     
     def __str__(self):
-        return f"OTP for {self.phone_number} - {self.purpose}"
+        target = self.email or self.phone_number
+        return f"OTP for {target} - {self.purpose}"
     
     def save(self, *args, **kwargs):
         if not self.expires_at:

@@ -8,6 +8,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from phonenumber_field.serializerfields import PhoneNumberField
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import OTPToken, AdminUser, SavedSearch
 from twilio.rest import Client
 
@@ -17,59 +19,93 @@ logger = logging.getLogger(__name__)
 
 class SendOTPSerializer(serializers.Serializer):
     """
-    Serializer for sending OTP to phone number
+    Serializer for sending OTP to phone number or email
     """
-    phone_number = PhoneNumberField()
-    
-    def validate_phone_number(self, value):
-        """Validate phone number format"""
-        if not value:
-            raise serializers.ValidationError("Phone number is required")
-        return value
-    
+    phone_number = PhoneNumberField(required=False)
+    email = serializers.EmailField(required=False)
+
+    def validate(self, attrs):
+        phone = attrs.get('phone_number')
+        email = attrs.get('email')
+        if not phone and not email:
+            raise serializers.ValidationError("Provide phone_number or email")
+        if phone and email:
+            raise serializers.ValidationError("Provide only one of phone_number or email")
+        return attrs
+
     def save(self):
-        """Create and send OTP"""
-        phone_number = self.validated_data['phone_number']
-        
-        # Invalidate any existing OTP tokens for this phone number
+        """Create and send OTP via SMS or Email based on input"""
+        phone_number = self.validated_data.get('phone_number')
+        email = self.validated_data.get('email')
+
+        # Invalidate existing OTP tokens for this target
+        q = {}
+        if phone_number:
+            q['phone_number'] = phone_number
+        if email:
+            q['email'] = email
         OTPToken.objects.filter(
-            phone_number=phone_number,
+            **q,
             is_used=False,
             expires_at__gt=timezone.now()
         ).update(is_used=True)
-        
+
         # Create new OTP token
         otp_token = OTPToken.objects.create(
             phone_number=phone_number,
+            email=email,
             purpose='login'
         )
-        
-        # Send OTP via SMS using Twilio (minimal)
-        account_sid = os.environ["TWILIO_ACCOUNT_SID"]
-        auth_token = os.environ["TWILIO_AUTH_TOKEN"]
-        # Backward-compatible: support TWILIO_FROM_NUMBER and TWILIO_PHONE_NUMBER
-        from_number = os.environ.get("TWILIO_FROM_NUMBER") or os.environ.get("TWILIO_PHONE_NUMBER")
-        if not from_number:
-            logger.error("Twilio FROM number not configured. Set TWILIO_FROM_NUMBER or TWILIO_PHONE_NUMBER.")
-            raise serializers.ValidationError("OTP service not configured. Please try again later.")
 
-        try:
-            client = Client(account_sid, auth_token)
-            client.messages.create(
-                body=f"Your Bharat Auto Bazaar OTP is {otp_token.otp}",
-                from_=from_number,
-                to=str(phone_number),
-            )
-        except Exception:
-            logger.exception("Failed to send OTP via Twilio")
-            raise serializers.ValidationError("Failed to send OTP. Please try again later.")
-        
+        # Dispatch OTP
+        if phone_number:
+            # Send OTP via SMS using Twilio
+            account_sid = os.environ.get("TWILIO_ACCOUNT_SID")
+            auth_token = os.environ.get("TWILIO_AUTH_TOKEN")
+            from_number = os.environ.get("TWILIO_FROM_NUMBER") or os.environ.get("TWILIO_PHONE_NUMBER")
+            if not (account_sid and auth_token and from_number):
+                logger.error("Twilio env vars missing for SMS OTP")
+                raise serializers.ValidationError("OTP service not configured. Please try again later.")
+            try:
+                client = Client(account_sid, auth_token)
+                client.messages.create(
+                    body=f"Your Bharat Auto Bazaar OTP is {otp_token.otp}",
+                    from_=from_number,
+                    to=str(phone_number),
+                )
+            except Exception:
+                logger.exception("Failed to send OTP via Twilio")
+                raise serializers.ValidationError("Failed to send OTP. Please try again later.")
+        else:
+            # Send OTP via Email using Django SMTP settings
+            try:
+                subject = "Your Bharat Auto Bazaar OTP"
+                message = f"Your OTP is {otp_token.otp}. It expires in 5 minutes."
+                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+            except Exception:
+                logger.exception("Failed to send OTP via Email")
+                raise serializers.ValidationError("Failed to send OTP. Please try again later.")
+
+        masked = None
+        if phone_number:
+            s = str(phone_number)
+            masked = s[:3] + '****' + s[-4:]
+            key = 'masked_phone'
+        else:
+            # mask email like a***@d***.com
+            local, _, domain = email.partition('@')
+            masked_local = (local[0] + '***') if local else '***'
+            dom_main, _, dom_tld = domain.partition('.')
+            masked_domain = (dom_main[:1] + '***') if dom_main else '***'
+            masked = f"{masked_local}@{masked_domain}.{dom_tld or '***'}"
+            key = 'masked_email'
+
         return {
             'otp_id': str(otp_token.id),
             'expires_at': otp_token.expires_at,
-            'masked_phone': str(phone_number)[:3] + '****' + str(phone_number)[-4:],
-            # Remove this in production
-            'otp': otp_token.otp if timezone.now().date().isoformat() == '2024-01-01' else None
+            key: masked,
+            # Optional dev hint (example)
+            'otp': otp_token.otp if settings.DEBUG else None
         }
 
 
@@ -79,13 +115,14 @@ class VerifyOTPSerializer(serializers.Serializer):
     """
     otp_id = serializers.UUIDField()
     otp = serializers.CharField(max_length=6)
-    phone_number = PhoneNumberField()
+    phone_number = PhoneNumberField(required=False)
+    email = serializers.EmailField(required=False)
     
     def validate(self, attrs):
         """Validate OTP and return user"""
         otp_id = attrs.get('otp_id')
         otp = attrs.get('otp')
-        provided_phone = attrs.get('phone_number')
+        # Email/phone are not strictly required here; otp_id is primary
         
         # Be lenient: trust otp_id as the primary key; use phone from token
         try:
@@ -99,14 +136,30 @@ class VerifyOTPSerializer(serializers.Serializer):
             remaining = otp_token.max_attempts - otp_token.attempts
             raise serializers.ValidationError(f"Invalid OTP. {remaining} attempts remaining.")
         
-        # Always use the phone number stored with the OTP token to avoid formatting mismatches
+        # Determine identity from token
         phone_number = otp_token.phone_number
-        
-        # Get or create user
-        user, created = User.objects.get_or_create(
-            phone_number=phone_number,
-            defaults={'is_verified': True}
-        )
+        email = otp_token.email
+
+        # Get or create user, preferring phone-based identity if present; else email
+        if phone_number:
+            user, created = User.objects.get_or_create(
+                phone_number=phone_number,
+                defaults={'is_verified': True, 'email': email or None}
+            )
+            # If user exists but email empty and token has email, set it (best-effort)
+            if email and not user.email:
+                user.email = email
+                user.save()
+        else:
+            # Email-only login; need to find or create a user. Since our User model uses phone_number as USERNAME_FIELD,
+            # we will create a placeholder phone_number for email-only users (not ideal long-term but works for OTP-only auth).
+            # Use a synthetic E.164-like value that won't collide: +999<uuid4 last 9 digits>
+            import uuid
+            placeholder = f"+999{str(uuid.uuid4().int)[-9:]}"
+            user, created = User.objects.get_or_create(
+                email=email,
+                defaults={'is_verified': True, 'phone_number': placeholder}
+            )
         
         if not user.is_verified:
             user.is_verified = True

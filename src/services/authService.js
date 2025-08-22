@@ -28,22 +28,23 @@ class AuthService {
     }
   }
 
-  // Send OTP to phone number
-  async sendOTP(phoneNumber, countryCode = '+91') {
+  // Send OTP to phone number or email
+  async sendOTP(target, countryCode = '+91') {
     try {
-      // Format phone number properly for django-phonenumber-field
-      let formattedPhone = phoneNumber;
-      
-      // If phone number doesn't start with +, add country code
-      if (!phoneNumber.startsWith('+')) {
-        // Remove any leading zeros or spaces
-        const cleanNumber = phoneNumber.replace(/^0+/, '').replace(/\s+/g, '');
-        formattedPhone = countryCode + cleanNumber;
+      const payload = {};
+      if (String(target).includes('@')) {
+        payload.email = String(target).trim();
+      } else {
+        // Format phone number properly for django-phonenumber-field
+        let formattedPhone = target;
+        if (!String(target).startsWith('+')) {
+          const cleanNumber = String(target).replace(/^0+/, '').replace(/\s+/g, '');
+          formattedPhone = countryCode + cleanNumber;
+        }
+        payload.phone_number = formattedPhone;
       }
 
-      const response = await apiService.post('/auth/send-otp/', {
-        phone_number: formattedPhone,
-      }, { includeAuth: false });
+      const response = await apiService.post('/auth/send-otp/', payload, { includeAuth: false });
 
       return {
         success: true,
@@ -59,27 +60,28 @@ class AuthService {
   }
 
   // Verify OTP and login
-  async verifyOTP(otpId, otp, phoneNumber) {
+  async verifyOTP(otpId, otp, target) {
     try {
-      // Normalize phone number to E.164 (+<country><number>) like sendOTP
-      let formattedPhone = phoneNumber
-      if (phoneNumber) {
-        const digitsOnly = String(phoneNumber).replace(/\D+/g, '')
-        if (phoneNumber.startsWith('+')) {
-          formattedPhone = `+${digitsOnly}`
+      const payload = { otp_id: otpId, otp };
+      if (target) {
+        if (String(target).includes('@')) {
+          payload.email = String(target).trim();
         } else {
-          const withoutCountry = digitsOnly.startsWith('91') ? digitsOnly.slice(2) : digitsOnly
-          formattedPhone = `+91${withoutCountry}`
+          let formattedPhone = target;
+          const digitsOnly = String(target).replace(/\D+/g, '')
+          if (String(target).startsWith('+')) {
+            formattedPhone = `+${digitsOnly}`
+          } else {
+            const withoutCountry = digitsOnly.startsWith('91') ? digitsOnly.slice(2) : digitsOnly
+            formattedPhone = `+91${withoutCountry}`
+          }
+          payload.phone_number = formattedPhone;
         }
       }
 
-      console.log('AuthService verifyOTP called with:', { otpId, otp, phoneNumber: formattedPhone })
+      console.log('AuthService verifyOTP called with:', payload)
 
-      const response = await apiService.post('/auth/verify-otp/', {
-        otp_id: otpId,
-        otp: otp,
-        phone_number: formattedPhone,
-      }, { includeAuth: false });
+      const response = await apiService.post('/auth/verify-otp/', payload, { includeAuth: false });
 
       console.log('AuthService verifyOTP response:', response)
 
