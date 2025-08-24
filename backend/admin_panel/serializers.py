@@ -32,8 +32,15 @@ class AdminCarListSerializer(serializers.ModelSerializer):
     def get_seller_info(self, obj):
         # Fallback to user's phone_number if listing phone is empty
         seller_phone = obj.seller_phone or getattr(obj.seller, 'phone_number', '') or ''
+        # Use same field as edit listing detail: obj.seller_name, with sensible fallbacks
+        display_name = (
+            obj.seller_name or
+            getattr(obj.seller, 'name', '') or
+            getattr(obj.seller, 'get_display_name', lambda: '')() or
+            str(getattr(obj.seller, 'phone_number', 'Unknown'))
+        )
         return {
-            'name': obj.seller_name or getattr(obj.seller, 'username', 'Unknown'),
+            'name': display_name,
             'phone': seller_phone,
             'verified': getattr(obj.seller, 'is_verified', False)
         }
