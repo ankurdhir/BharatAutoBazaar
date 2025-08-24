@@ -25,7 +25,7 @@ class AdminCarListSerializer(serializers.ModelSerializer):
         model = Car
         fields = [
             'id', 'brand', 'car_model', 'year', 'price', 'status',
-            'seller_info', 'city', 'quality_score', 'views_count',
+            'seller_info', 'city', 'quality_score', 'views_count', 'images',
             'inquiries_count', 'created_at', 'reviewed_at'
         ]
     
