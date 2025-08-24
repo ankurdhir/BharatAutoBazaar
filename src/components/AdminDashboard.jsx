@@ -356,7 +356,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {listing.seller?.name || 'Unknown'}
+                          {listing.seller_info?.name || listing.seller?.name || 'Unknown'}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
                           {listing.seller_info?.phone || listing.seller?.phone_number || 'No phone'}
