@@ -19,6 +19,7 @@ class AdminCarListSerializer(serializers.ModelSerializer):
     car_model = serializers.CharField(source='car_model.name')
     city = serializers.CharField(source='city.name')
     seller_info = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
     
     class Meta:
         model = Car
@@ -34,6 +35,23 @@ class AdminCarListSerializer(serializers.ModelSerializer):
             'phone': obj.seller_phone,
             'verified': obj.seller.is_verified
         }
+
+    def get_images(self, obj):
+        request = self.context.get('request')
+        def abs_url(path):
+            if not path:
+                return None
+            return request.build_absolute_uri(path) if request else path
+        images = obj.images.all()[:1]
+        return [
+            {
+                'id': str(img.id),
+                'url': abs_url(img.image.url if img.image else None),
+                'thumbnail': abs_url(img.thumbnail.url if img.thumbnail else None),
+                'order': img.order,
+            }
+            for img in images
+        ]
 
 
 class AdminCarDetailSerializer(serializers.ModelSerializer):

@@ -334,7 +334,7 @@ export default function AdminDashboard() {
                           <div className="h-16 w-24 bg-gray-200 dark:bg-gray-600 rounded-lg overflow-hidden">
                             {listing.images && listing.images.length > 0 ? (
                               <img
-                                src={getCarMainImageUrl(listing)}
+                                src={listing.images[0].thumbnail || listing.images[0].url}
                                 alt={`${listing.brand} ${listing.car_model}`}
                                 className="w-full h-full object-cover"
                               />
@@ -359,7 +359,7 @@ export default function AdminDashboard() {
                           {listing.seller?.name || 'Unknown'}
                         </div>
                         <div className="text-sm text-gray-500 dark:text-gray-400">
-                          {listing.seller?.phone_number || 'No phone'}
+                          {listing.seller_info?.phone || listing.seller?.phone_number || 'No phone'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
