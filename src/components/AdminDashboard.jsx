@@ -549,6 +549,17 @@ export default function AdminDashboard() {
                     <span className="text-sm text-gray-700 dark:text-gray-300">Full Address</span>
                     <input name="address" defaultValue={editModal.detail.address || ''} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white" />
                   </label>
+                  <label className="block md:col-span-2">
+                    <span className="text-sm text-gray-700 dark:text-gray-300">Video URL (YouTube)</span>
+                    <input
+                      name="video_url"
+                      type="url"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      defaultValue={editModal.detail.video_url || ''}
+                      className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white"
+                    />
+                    <span className="text-xs text-gray-500">Optional. Paste a YouTube link to show on the listing page.</span>
+                  </label>
                   <label className="block">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Exterior Condition</span>
                     <select name="exterior_condition" defaultValue={editModal.detail.exterior_condition} className="mt-1 w-full px-3 py-2 border rounded-lg dark:bg-gray-900 dark:border-gray-700 text-gray-900 dark:text-white">

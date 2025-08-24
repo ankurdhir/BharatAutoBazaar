@@ -90,7 +90,8 @@ export default function Sell() {
     
     // Files
     uploadedImages: [],
-    uploadedVideos: []
+    uploadedVideos: [],
+    video_url: ''
   })
 
   // Load initial data
@@ -410,7 +411,8 @@ export default function Sell() {
         address: formData.address || '',
         description: formData.description || '',
         contact: formData.contact,
-        image_ids: formData.uploadedImages.map(img => img.id)
+        image_ids: formData.uploadedImages.map(img => img.id),
+        video_url: formData.video_url || ''
       }
 
       console.log('Submission data being sent:', submissionData)
@@ -996,7 +998,7 @@ export default function Sell() {
                 className="space-y-6"
               >
                 <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
-                  Photos & Videos
+                  Photos & Video URL
                 </h2>
 
                 {/* Image Upload */}
@@ -1054,7 +1056,18 @@ export default function Sell() {
                   )}
                 </div>
 
-                {/* Video Upload removed - images only */}
+                {/* Video URL (YouTube) */}
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Optional Video URL</h3>
+                  <input
+                    type="url"
+                    value={formData.video_url}
+                    onChange={(e) => updateFormData('video_url', e.target.value)}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                  <p className="mt-1 text-sm text-gray-500">Paste a YouTube link to show on your listing.</p>
+                </div>
 
                 {/* Submit Button */}
                 <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">

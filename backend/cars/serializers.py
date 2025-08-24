@@ -311,12 +311,14 @@ class CreateCarSerializer(serializers.ModelSerializer):
             'transmission', 'km_driven', 'owner_number', 'price', 'urgency',
             'exterior_condition', 'interior_condition', 'engine_condition',
             'accident_history', 'features', 'city_name', 'state_name', 'area',
-            'address', 'description', 'contact', 'image_ids', 'video_ids'
+            'address', 'description', 'contact', 'image_ids', 'video_ids',
+            'video_url'
         ]
         extra_kwargs = {
             'description': {'required': False, 'allow_blank': True},
             'area': {'required': False, 'allow_blank': True},
             'address': {'required': False, 'allow_blank': True},
+            'video_url': {'required': False, 'allow_blank': True},
         }
     
     def validate_contact(self, value):
@@ -347,6 +349,7 @@ class CreateCarSerializer(serializers.ModelSerializer):
         contact = validated_data.pop('contact')
         image_ids = validated_data.pop('image_ids', [])
         video_ids = validated_data.pop('video_ids', [])
+        video_url = validated_data.pop('video_url', '')
         
         # Get or create related objects
         from django.utils.text import slugify
@@ -406,6 +409,11 @@ class CreateCarSerializer(serializers.ModelSerializer):
         
         # Create car
         car = super().create(validated_data)
+
+        # Save optional video_url if provided
+        if video_url:
+            car.video_url = video_url
+            car.save(update_fields=['video_url'])
         
         # Associate images and move them from temp to proper folder
         if image_ids:
