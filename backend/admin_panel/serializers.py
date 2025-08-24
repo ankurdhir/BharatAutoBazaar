@@ -30,28 +30,42 @@ class AdminCarListSerializer(serializers.ModelSerializer):
         ]
     
     def get_seller_info(self, obj):
+        # Fallback to user's phone_number if listing phone is empty
+        seller_phone = obj.seller_phone or getattr(obj.seller, 'phone_number', '') or ''
         return {
-            'name': obj.seller_name,
-            'phone': obj.seller_phone,
-            'verified': obj.seller.is_verified
+            'name': obj.seller_name or getattr(obj.seller, 'name', 'Unknown'),
+            'phone': seller_phone,
+            'verified': getattr(obj.seller, 'is_verified', False)
         }
 
     def get_images(self, obj):
-        request = self.context.get('request')
-        def abs_url(path):
-            if not path:
-                return None
-            return request.build_absolute_uri(path) if request else path
-        images = obj.images.all()[:1]
-        return [
-            {
-                'id': str(img.id),
-                'url': abs_url(img.image.url if img.image else None),
-                'thumbnail': abs_url(img.thumbnail.url if img.thumbnail else None),
-                'order': img.order,
-            }
-            for img in images
-        ]
+        try:
+            request = self.context.get('request')
+            def abs_url(path):
+                if not path:
+                    return None
+                return request.build_absolute_uri(path) if request else path
+            images = obj.images.all()[:1]
+            result = []
+            for img in images:
+                try:
+                    url = abs_url(img.image.url) if getattr(img, 'image', None) else None
+                except Exception:
+                    url = None
+                try:
+                    thumb = abs_url(img.thumbnail.url) if getattr(img, 'thumbnail', None) else None
+                except Exception:
+                    thumb = None
+                result.append({
+                    'id': str(img.id),
+                    'url': url,
+                    'thumbnail': thumb,
+                    'order': getattr(img, 'order', 0),
+                })
+            return result
+        except Exception:
+            # Never break the list API due to media issues
+            return []
 
 
 class AdminCarDetailSerializer(serializers.ModelSerializer):
