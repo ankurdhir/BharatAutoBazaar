@@ -322,6 +322,30 @@ export default function ListingDetails() {
               </div>
             )}
 
+            {/* Watch detailed car video */}
+            {car.video_url && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 }}
+                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mt-8"
+              >
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Watch detailed car video</h2>
+                <a
+                  href={car.video_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 text-red-600 hover:text-red-700"
+                  aria-label="Watch detailed car video on YouTube"
+                >
+                  <svg viewBox="0 0 24 24" className="w-8 h-8" aria-hidden="true">
+                    <path fill="currentColor" d="M23.498 6.186a3.005 3.005 0 0 0-2.116-2.116C19.414 3.5 12 3.5 12 3.5s-7.414 0-9.382.57A3.005 3.005 0 0 0 .502 6.186C-.066 8.154-.066 12-.066 12s0 3.846.568 5.814a3.005 3.005 0 0 0 2.116 2.116C4.586 20.5 12 20.5 12 20.5s7.414 0 9.382-.57a3.005 3.005 0 0 0 2.116-2.116C24.066 15.846 24.066 12 24.066 12s0-3.846-.568-5.814ZM9.75 15.568V8.432L15.818 12 9.75 15.568Z"/>
+                  </svg>
+                  <span className="font-medium">Watch on YouTube</span>
+                </a>
+              </motion.div>
+            )}
+
             {/* Car Details */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -396,24 +420,6 @@ export default function ListingDetails() {
                 </div>
               )}
 
-              {/* Watch detailed car video */}
-              {car.video_url && (
-                <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Watch detailed car video</h3>
-                  <a
-                    href={car.video_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-3 text-red-600 hover:text-red-700"
-                    aria-label="Watch detailed car video on YouTube"
-                  >
-                    <svg viewBox="0 0 24 24" className="w-8 h-8" aria-hidden="true">
-                      <path fill="currentColor" d="M23.498 6.186a3.005 3.005 0 0 0-2.116-2.116C19.414 3.5 12 3.5 12 3.5s-7.414 0-9.382.57A3.005 3.005 0 0 0 .502 6.186C-.066 8.154-.066 12-.066 12s0 3.846.568 5.814a3.005 3.005 0 0 0 2.116 2.116C4.586 20.5 12 20.5 12 20.5s7.414 0 9.382-.57a3.005 3.005 0 0 0 2.116-2.116C24.066 15.846 24.066 12 24.066 12s0-3.846-.568-5.814ZM9.75 15.568V8.432L15.818 12 9.75 15.568Z"/>
-                    </svg>
-                    <span className="font-medium">Watch on YouTube</span>
-                  </a>
-                </div>
-              )}
             </motion.div>
           </div>
 
