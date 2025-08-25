@@ -1,4 +1,21 @@
 from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('authentication', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.AddField(
+            model_name='otptoken',
+            name='email',
+            field=models.EmailField(blank=True, null=True, max_length=254),
+        ),
+    ]
+
+from django.db import migrations, models
 import phonenumber_field.modelfields
 
 
