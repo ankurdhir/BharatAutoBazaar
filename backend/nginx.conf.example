@@ -12,27 +12,45 @@ http {
   server_tokens off;
 
   upstream app_server {
-    server 127.0.0.1:8000;
+    # Match gunicorn bind in production (e.g., 127.0.0.1:8001)
+    server 127.0.0.1:8001;
   }
 
+  # Catch-all: drop unknown Host headers so they never reach Django
+  server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    return 444;
+  }
+
+  # Redirect plain HTTP to HTTPS for your API host
   server {
     listen 80;
-    server_name _;
+    listen [::]:80;
+    server_name api.bharatauttobazaar.com;
+    return 301 https://$host$request_uri;
+  }
 
-    # Redirect HTTP to HTTPS if you terminate SSL here
-    # return 301 https://$host$request_uri;
+  # HTTPS vhost for the API
+  server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name api.bharatauttobazaar.com;
+
+    # ssl_certificate     /etc/letsencrypt/live/api.bharatauttobazaar.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/api.bharatauttobazaar.com/privkey.pem;
 
     # Static files
     location /static/ {
-      alias /opt/app/staticfiles/;  # run collectstatic to here
+      alias /opt/app/backend/staticfiles/;  # run collectstatic to here
       access_log off;
       expires 30d;
       add_header Cache-Control "public";
     }
 
-    # Media files (recommend serving from cloud storage instead)
+    # Media files
     location /media/ {
-      alias /opt/app/media/;
+      alias /opt/app/backend/media/;
       access_log off;
     }
 
