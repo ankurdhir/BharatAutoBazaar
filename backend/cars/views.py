@@ -101,7 +101,9 @@ class CarListView(generics.ListAPIView):
     serializer_class = CarListSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = CarPagination
-    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    # Note: We intentionally do NOT include OrderingFilter here because it would
+    # override our custom sortBy handling below when no 'ordering' param is sent.
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_class = CarFilter
     search_fields = ['title', 'brand__name', 'car_model__name', 'city__name']
     ordering_fields = ['price', 'year', 'km_driven', 'created_at']
@@ -123,8 +125,16 @@ class CarListView(generics.ListAPIView):
             queryset = queryset.order_by('-price')
         elif sort_by == 'year_desc':
             queryset = queryset.order_by('-year')
+        elif sort_by == 'year_asc':
+            queryset = queryset.order_by('year')
         elif sort_by == 'km_asc':
             queryset = queryset.order_by('km_driven')
+        elif sort_by == 'km_desc':
+            queryset = queryset.order_by('-km_driven')
+        elif sort_by == 'created_desc':
+            queryset = queryset.order_by('-created_at')
+        elif sort_by == 'created_asc':
+            queryset = queryset.order_by('created_at')
         
         return queryset
     

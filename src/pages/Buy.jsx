@@ -434,7 +434,10 @@ export default function Buy() {
                   <option value="price_asc">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
                   <option value="year_desc">Year: Newest First</option>
+                  <option value="year_asc">Year: Oldest First</option>
                   <option value="km_asc">Mileage: Low to High</option>
+                  <option value="km_desc">Mileage: High to Low</option>
+                  <option value="created_asc">Oldest First</option>
                 </select>
               </div>
             </div>
