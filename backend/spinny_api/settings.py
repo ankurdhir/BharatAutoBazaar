@@ -308,6 +308,11 @@ LOGGING = {
             'formatter': 'simple',
         },
     },
+    # Ensure any logger without explicit config still writes to file/console
+    'root': {
+        'handlers': ['file', 'console'],
+        'level': 'INFO',
+    },
     'loggers': {
         'django': {
             'handlers': ['file', 'console'],
@@ -318,6 +323,12 @@ LOGGING = {
             'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        # App-specific loggers
+        'authentication': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
 }
