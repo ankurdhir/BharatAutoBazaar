@@ -134,7 +134,7 @@ export default function Login() {
       console.log('Verifying OTP with:', {
         otpId: otpData.otp_id,
         otp: otp,
-        phone: rawPhone
+        target
       })
       
       const result = await authService.verifyOTP(otpData.otp_id, otp, target)
