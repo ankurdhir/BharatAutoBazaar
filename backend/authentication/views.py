@@ -1,7 +1,7 @@
 """
 Authentication views for Spinny Car Marketplace
 """
-from rest_framework import generics, status, permissions
+from rest_framework import generics, status, permissions, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -70,12 +70,26 @@ class SendOTPView(APIView):
                     'message': 'OTP sent successfully',
                     'data': result
                 }, status=status.HTTP_200_OK)
-            except Exception as e:
+            except serializers.ValidationError as e:
+                # Surface configuration/validation errors as 400 with details
+                return Response({
+                    'success': False,
+                    'error': {
+                        'code': 'OTP_SEND_VALIDATION_ERROR',
+                        'message': 'Failed to send OTP',
+                        'details': e.detail
+                    }
+                }, status=status.HTTP_400_BAD_REQUEST)
+            except Exception:
+                # Unknown failure
+                from django.conf import settings
+                import logging
+                logging.getLogger(__name__).exception("Unhandled error while sending OTP")
                 return Response({
                     'success': False,
                     'error': {
                         'code': 'OTP_SEND_FAILED',
-                        'message': 'Failed to send OTP. Please try again.'
+                        'message': 'Failed to send OTP. Please try again later.'
                     }
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
