@@ -79,11 +79,53 @@ class SendOTPSerializer(serializers.Serializer):
         else:
             # Send OTP via Email using Django SMTP settings
             try:
+                # Log non-sensitive email settings for diagnostics
+                masked_email_for_log = None
+                if email:
+                    local, _, domain = email.partition('@')
+                    masked_local = (local[:1] + '***') if local else '***'
+                    dom_main, _, dom_tld = domain.partition('.')
+                    masked_domain = (dom_main[:1] + '***') if dom_main else '***'
+                    masked_email_for_log = f"{masked_local}@{masked_domain}.{dom_tld or '***'}"
+
+                logger.info(
+                    "Sending OTP email",
+                    extra={
+                        'otp_id': str(otp_token.id),
+                        'target': masked_email_for_log,
+                        'email_backend': getattr(settings, 'EMAIL_BACKEND', None),
+                        'email_host': getattr(settings, 'EMAIL_HOST', None),
+                        'email_port': getattr(settings, 'EMAIL_PORT', None),
+                        'email_use_tls': getattr(settings, 'EMAIL_USE_TLS', None),
+                        'default_from_email': getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+                    }
+                )
                 subject = "Your Bharat Auto Bazaar OTP"
                 message = f"Your OTP is {otp_token.otp}. It expires in 5 minutes."
-                send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [email], fail_silently=False)
+                sent = send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                    fail_silently=False
+                )
+                logger.info(
+                    "OTP email dispatched",
+                    extra={'otp_id': str(otp_token.id), 'target': masked_email_for_log, 'sent_count': sent}
+                )
             except Exception:
-                logger.exception("Failed to send OTP via Email")
+                logger.exception(
+                    "Failed to send OTP via Email",
+                    extra={
+                        'otp_id': str(otp_token.id),
+                        'target': masked_email_for_log,
+                        'email_backend': getattr(settings, 'EMAIL_BACKEND', None),
+                        'email_host': getattr(settings, 'EMAIL_HOST', None),
+                        'email_port': getattr(settings, 'EMAIL_PORT', None),
+                        'email_use_tls': getattr(settings, 'EMAIL_USE_TLS', None),
+                        'default_from_email': getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+                    }
+                )
                 raise serializers.ValidationError("Failed to send OTP. Please try again later.")
 
         masked = None
