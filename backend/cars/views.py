@@ -39,6 +39,17 @@ class CarPagination(PageNumberPagination):
     page_size_query_param = 'limit'
     max_page_size = 50
 
+    def get_paginated_response(self, data):
+        return Response({
+            'count': self.page.paginator.count,
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'page': self.page.number,
+            'total_pages': self.page.paginator.num_pages,
+            'limit': self.get_page_size(self.request) or self.page_size,
+            'results': data,
+        })
+
 
 @extend_schema(
     tags=['Cars'],
