@@ -2,6 +2,7 @@
 Authentication views for Spinny Car Marketplace
 """
 from rest_framework import generics, status, permissions, serializers
+import logging
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -55,6 +56,7 @@ class SendOTPView(APIView):
     permission_classes = [permissions.AllowAny]
     
     def post(self, request):
+        logger = logging.getLogger(__name__)
         serializer = SendOTPSerializer(data=request.data)
         if serializer.is_valid():
             try:
@@ -72,6 +74,7 @@ class SendOTPView(APIView):
                 }, status=status.HTTP_200_OK)
             except serializers.ValidationError as e:
                 # Surface configuration/validation errors as 400 with details
+                logger.warning("OTP send validation error", extra={'details': e.detail})
                 return Response({
                     'success': False,
                     'error': {
@@ -82,8 +85,6 @@ class SendOTPView(APIView):
                 }, status=status.HTTP_400_BAD_REQUEST)
             except Exception:
                 # Unknown failure
-                from django.conf import settings
-                import logging
                 logging.getLogger(__name__).exception("Unhandled error while sending OTP")
                 return Response({
                     'success': False,
@@ -142,6 +143,7 @@ class VerifyOTPView(APIView):
     
     def post(self, request):
         from django.conf import settings
+        logger = logging.getLogger(__name__)
         
         # Development bypass - auto-succeed OTP verification in DEBUG mode
         if settings.DEBUG and request.data.get('otp') == '000000':
@@ -192,7 +194,18 @@ class VerifyOTPView(APIView):
                     'message': 'Login successful',
                     'data': user_data
                 }, status=status.HTTP_200_OK)
+            except serializers.ValidationError as e:
+                logger.warning("OTP verify validation error", extra={'details': e.detail})
+                return Response({
+                    'success': False,
+                    'error': {
+                        'code': 'VERIFICATION_VALIDATION_ERROR',
+                        'message': 'OTP verification failed',
+                        'details': e.detail
+                    }
+                }, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
+                logger.exception("Unhandled error while verifying OTP")
                 return Response({
                     'success': False,
                     'error': {
