@@ -13,6 +13,11 @@ export function usePageMeta({
   const brand = useBrand()
 
   useEffect(() => {
+    // Build site base dynamically so meta/canonical never point to a hardcoded domain
+    const basePath = import.meta.env.BASE_URL || '/'
+    const normalizedBasePath = basePath.endsWith('/') ? basePath : basePath + '/'
+    const siteBase = window.location.origin + normalizedBasePath
+
     // Dynamic title with brand name
     const pageTitle = title ? `${brand.name} – ${title}` : brand.name
     document.title = pageTitle
@@ -67,11 +72,21 @@ export function usePageMeta({
         document.head.appendChild(canonical)
       }
       canonical.setAttribute('href', url)
+    } else {
+      // Fallback canonical to current location if not explicitly provided
+      let canonical = document.querySelector('link[rel="canonical"]')
+      if (!canonical) {
+        canonical = document.createElement('link')
+        canonical.setAttribute('rel', 'canonical')
+        document.head.appendChild(canonical)
+      }
+      canonical.setAttribute('href', siteBase.replace(/\/$/, '') + window.location.pathname + window.location.search)
     }
 
     if (image) {
-      updateMetaTag('meta[property="og:image"]', image)
-      updateMetaTag('meta[property="twitter:image"]', image)
+      const absoluteImage = image.startsWith('http') ? image : (window.location.origin + (image.startsWith('/') ? image : ('/' + image)))
+      updateMetaTag('meta[property="og:image"]', absoluteImage)
+      updateMetaTag('meta[property="twitter:image"]', absoluteImage)
     }
 
     // Twitter tags
@@ -95,8 +110,7 @@ export function useHomeMeta() {
     title: 'Home',
     description: `Buy and sell quality cars with ${brand.name} - your trusted online car marketplace. Browse verified listings, get instant valuations, and enjoy hassle-free car buying experience.`,
     keywords: ['cars', 'buy cars', 'sell cars', 'used cars', 'car marketplace', 'automotive'],
-    url: 'https://spinny.app/',
-    image: 'https://spinny.app/og-home.jpg'
+    image: '/og-home.jpg'
   })
 }
 
@@ -106,8 +120,7 @@ export function useBuyMeta() {
     title: 'Buy Cars',
     description: `Browse our extensive collection of verified used cars. Find your perfect car with ${brand.name} - transparent pricing, quality assurance, and hassle-free buying.`,
     keywords: ['buy cars', 'used cars', 'car listings', 'verified cars', 'car purchase'],
-    url: 'https://spinny.app/buy',
-    image: 'https://spinny.app/og-buy.jpg'
+    image: '/og-buy.jpg'
   })
 }
 
@@ -117,8 +130,7 @@ export function useSellMeta() {
     title: 'Sell Your Car',
     description: `Sell your car quickly and get the best price with ${brand.name}. Instant valuation, free inspection, and guaranteed sale within 24 hours.`,
     keywords: ['sell car', 'car valuation', 'instant car sale', 'car inspection', 'quick sale'],
-    url: 'https://spinny.app/sell',
-    image: 'https://spinny.app/og-sell.jpg'
+    image: '/og-sell.jpg'
   })
 }
 
@@ -130,8 +142,7 @@ export function useListingMeta({ listing }) {
     title: `${listing.make} ${listing.model} ${listing.year} - ₹${listing.price}`,
     description: `${listing.year} ${listing.make} ${listing.model} for sale - ₹${listing.price}. ${listing.km} km driven, ${listing.fuel} fuel, located in ${listing.city}. Verified by ${brand.name}.`,
     keywords: [listing.make, listing.model, listing.year, listing.fuel, 'used car', 'car sale'],
-    url: `https://spinny.app/listing/${listing.id}`,
-    image: listing.images?.[0] || 'https://spinny.app/og-listing.jpg',
+    image: listing.images?.[0] || '/og-listing.jpg',
     type: 'product'
   })
 }
@@ -140,7 +151,6 @@ export function useLoginMeta() {
   return usePageMeta({
     title: 'Login',
     description: 'Sign in to your Spinny account to manage your car listings, saved searches, and profile.',
-    url: 'https://spinny.app/login',
     noIndex: true
   })
 }
@@ -149,7 +159,6 @@ export function useSignupMeta() {
   return usePageMeta({
     title: 'Sign Up',
     description: 'Create your Spinny account to start buying and selling cars. Join thousands of satisfied customers.',
-    url: 'https://spinny.app/signup',
     noIndex: true
   })
 }
@@ -158,7 +167,6 @@ export function useDashboardMeta() {
   return usePageMeta({
     title: 'My Dashboard',
     description: 'Manage your car listings, track inquiries, and monitor your selling activity.',
-    url: 'https://spinny.app/dashboard',
     noIndex: true
   })
 }
@@ -167,7 +175,6 @@ export function useAdminMeta() {
   return usePageMeta({
     title: 'Admin Dashboard',
     description: 'Admin portal for managing listings and user activities.',
-    url: 'https://spinny.app/admin/dashboard',
     noIndex: true
   })
 }
@@ -176,7 +183,6 @@ export function useThemeMeta() {
   return usePageMeta({
     title: 'Theme Demo',
     description: 'Experience Spinny\'s dark and light mode themes with smooth animations and persistent settings.',
-    url: 'https://spinny.app/theme-demo',
     keywords: ['theme', 'dark mode', 'light mode', 'UI demo']
   })
 } 
