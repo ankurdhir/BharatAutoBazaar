@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 const ThemeContext = createContext()
 
 export function ThemeProvider({ children }) {
+  // Default to light; we'll still respect a previously saved choice
   const [theme, setTheme] = useState('light')
   const [isInitialized, setIsInitialized] = useState(false)
 
@@ -12,14 +13,12 @@ export function ThemeProvider({ children }) {
       try {
         // Check localStorage first
         const stored = localStorage.getItem('bharatautobazaar-theme')
-        if (stored && (stored === 'light' || stored === 'dark')) {
+        if (stored === 'light' || stored === 'dark') {
           setTheme(stored)
         } else {
-          // Check system preference if no stored theme
-          const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-          const systemTheme = systemPrefersDark ? 'dark' : 'light'
-          setTheme(systemTheme)
-          localStorage.setItem('bharatautobazaar-theme', systemTheme)
+          // Make light the default on first load across all devices
+          setTheme('light')
+          localStorage.setItem('bharatautobazaar-theme', 'light')
         }
       } catch (error) {
         // Fallback if localStorage is not available
@@ -73,8 +72,8 @@ export function ThemeProvider({ children }) {
       // Only auto-switch if user hasn't manually set a preference
       const stored = localStorage.getItem('bharatautobazaar-theme-manual')
       if (!stored) {
-        const systemTheme = e.matches ? 'dark' : 'light'
-        setTheme(systemTheme)
+        // Keep default as light unless user sets manually
+        setTheme('light')
       }
     }
 

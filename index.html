@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#3F8CFF" />
+    <meta name="theme-color" content="#ffffff" />
     
     <!-- Primary Meta Tags -->
     <title>Bharat Auto Bazaar – Your spinning PWA</title>
@@ -88,6 +88,36 @@
     </script>
   </head>
   <body>
+    <script>
+      // Early theme bootstrap to avoid FOUC and ensure light default
+      (function () {
+        try {
+          var stored = localStorage.getItem('bharatautobazaar-theme')
+          var manual = localStorage.getItem('bharatautobazaar-theme-manual')
+          var theme = 'light'
+          if (stored === 'light' || stored === 'dark') {
+            theme = stored
+          } else {
+            // Persist light as default
+            localStorage.setItem('bharatautobazaar-theme', 'light')
+          }
+          var root = document.documentElement
+          if (theme === 'dark') {
+            root.classList.add('dark')
+            root.classList.remove('light')
+            var meta = document.querySelector('meta[name="theme-color"]')
+            if (meta) meta.setAttribute('content', '#111827')
+          } else {
+            root.classList.add('light')
+            root.classList.remove('dark')
+            var meta2 = document.querySelector('meta[name="theme-color"]')
+            if (meta2) meta2.setAttribute('content', '#ffffff')
+          }
+        } catch (e) {
+          // no-op
+        }
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
